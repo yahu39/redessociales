@@ -2,7 +2,7 @@ package com.yahupc.redessociales.services;
 
 import java.util.List;
 
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +15,7 @@ import com.yahupc.redessociales.model.UserSocialMedia;
 @Transactional
 public class SocialMediaServiceImpl implements SocialMediaService{
 	
+	@Autowired 
 	private SocialMediaDao _socialMediaDao;
 	@Override
 	public void saveSocialMedia(SocialMedia socialMedia) {
