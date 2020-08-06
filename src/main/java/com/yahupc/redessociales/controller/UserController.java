@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +23,7 @@ public class UserController {
 	@Autowired
 	private UserService _userService;
 	
-	//GET 
+	//GET READ
 	@RequestMapping(value = "/users", method = RequestMethod.GET, headers = "Accept=application/json")
     public ResponseEntity<List<User>> getUsers(){
 		List<User> users = new ArrayList<User>();
@@ -34,7 +35,18 @@ public class UserController {
 	        }
 		   
 			return new ResponseEntity<List<User>>(users, HttpStatus.OK);
+    }
+	
+	//FIND BY ID
+		@RequestMapping(value = "/users/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
+	    public ResponseEntity<User> getUserById(@PathVariable("id") Long id){
+			User user = _userService.findById(id);
+	        if (user == null) {
+	            return new ResponseEntity(HttpStatus.NOT_FOUND);
+	            // You many decide to return HttpStatus.NOT_FOUND
+	        }
+	        return new ResponseEntity<User>(user, HttpStatus.OK);
+	    }
 		
 
-    }
 }
