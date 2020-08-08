@@ -7,6 +7,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.yahupc.redessociales.model.SocialMedia;
 import com.yahupc.redessociales.services.SocialMediaService;
+import com.yahupc.redessociales.util.CustomErrorType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +81,7 @@ public class SocialMediaController {
 	@RequestMapping(value="/socialMedias/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public ResponseEntity<SocialMedia> getSocialMediaById(@PathVariable("id") Long idSocialMedia){
 		if(idSocialMedia == null || idSocialMedia <= 0) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
+			return new ResponseEntity("SocialMedia name is required", HttpStatus.CONFLICT);
 		}
 		SocialMedia socialMedia = _socialMediaService.findById(idSocialMedia);
 		if(socialMedia == null) {
@@ -94,7 +95,7 @@ public class SocialMediaController {
 	public ResponseEntity<SocialMedia> updateSocialMedia(@PathVariable("id") Long idSocialMedia, @RequestBody SocialMedia socialMedia){
 		SocialMedia currentSocialMedia = _socialMediaService.findById(idSocialMedia);
 		if(currentSocialMedia == null) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
+			return new ResponseEntity(new CustomErrorType("idSocialMedia is required"), HttpStatus.CONFLICT);
 		}
 		currentSocialMedia.setName(socialMedia.getName());
 		currentSocialMedia.setIcon(socialMedia.getIcon());
@@ -106,7 +107,7 @@ public class SocialMediaController {
 	@RequestMapping(value="/socialMedias/{id}", method = RequestMethod.DELETE, headers = "Accept=application/json")
 	public ResponseEntity<?> deleteSocialMedia(@PathVariable("id") Long idSocialMedia){
 		if(idSocialMedia == null || idSocialMedia <= 0) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
+			return new ResponseEntity((new CustomErrorType("idSocialMedia is required")), HttpStatus.CONFLICT);
 		}
 		SocialMedia socialMedia = _socialMediaService.findById(idSocialMedia);
 		if(socialMedia == null) {
