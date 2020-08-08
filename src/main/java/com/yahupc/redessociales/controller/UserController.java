@@ -1,11 +1,18 @@
 package com.yahupc.redessociales.controller;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,11 +20,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.yahupc.redessociales.model.User;
 import com.yahupc.redessociales.services.SocialMediaServiceImpl;
 import com.yahupc.redessociales.services.UserService;
+import com.yahupc.redessociales.util.CustomErrorType;
 
 @Controller
 @RequestMapping(value = "/v1")
@@ -106,5 +115,56 @@ public class UserController {
 		return new ResponseEntity<User>(HttpStatus.OK);
 
 	}
-
+	
+	
+	public static final String USER_UPLOADED_FOLDER ="images/users/";
+	//CREATE USER IMAGE
+	@RequestMapping(value="/users/images", method = RequestMethod.POST, headers=("content-type=multipart/form-data"))
+	public ResponseEntity<byte[]> uploadUserImage(@RequestParam("id_User") Long idUser, 
+			@RequestParam("file") MultipartFile multipartFile, 
+			UriComponentsBuilder componentsBuilder){
+		if (idUser == null) {
+			return new ResponseEntity(new CustomErrorType("Please set id_User"), HttpStatus.NO_CONTENT);
+		}
+		
+		if (multipartFile.isEmpty()) {
+			return new ResponseEntity(new CustomErrorType("Please select a file to upload"), HttpStatus.NO_CONTENT);
+		}
+		
+		User user = _userService.findById(idUser);
+		if (user == null) {
+			return new ResponseEntity(new CustomErrorType("User with id_USER: " + idUser + " not dfound"), HttpStatus.NOT_FOUND);
+		}
+		
+		if (!user.getAvatar().isEmpty() || user.getAvatar() != null) {
+			String fileName = user.getAvatar();
+			Path path = Paths.get(fileName);
+			File f = path.toFile();
+			if (f.exists()) {
+				f.delete();
+			}
+		}
+		
+		try {
+			Date date = new Date();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+			String dateName = dateFormat.format(date);
+			
+			String fileName = String.valueOf(idUser) + "-pictureUser-" + dateName + "." + multipartFile.getContentType().split("/")[1];
+			user.setAvatar(USER_UPLOADED_FOLDER + fileName);
+			
+			byte[] bytes = multipartFile.getBytes();
+			Path path = Paths.get(USER_UPLOADED_FOLDER + fileName);
+			Files.write(path, bytes);
+			
+			_userService.updateUser(user);
+			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(bytes);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return new ResponseEntity(new CustomErrorType("Error during upload: " + multipartFile.getOriginalFilename()),HttpStatus.CONFLICT);
+		}
+	}
 }
+	
+
