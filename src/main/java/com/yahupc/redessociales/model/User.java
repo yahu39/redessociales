@@ -33,7 +33,7 @@ public class User implements Serializable{
 	
 	@OneToMany(fetch=FetchType.EAGER, cascade = CascadeType.ALL) // que si se elimina un user se eliminen sus socialmedias en cascada
 	@JoinColumn(name="id_user")
-	@JsonIgnore
+	//@JsonIgnore
 	private Set<UserSocialMedia> userSocialMedias;
 	
 		

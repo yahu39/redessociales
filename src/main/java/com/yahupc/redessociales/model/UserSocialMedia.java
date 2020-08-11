@@ -12,6 +12,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name="user_social_media")
 public class UserSocialMedia implements Serializable{
@@ -26,6 +28,7 @@ public class UserSocialMedia implements Serializable{
 	
 	@ManyToOne(fetch=FetchType.EAGER) // que sea obligatorio
 	@JoinColumn(name="id_user")
+	@JsonIgnore
 	private User user;
 	
 	@ManyToOne(fetch=FetchType.EAGER) // que sea obligatorio
